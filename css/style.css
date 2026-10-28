@@ -1,0 +1,270 @@
+/* =========================================================================
+   NEON CLASH — página de despliegue
+   ========================================================================= */
+@font-face {
+  font-family: 'Orbitron';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('../assets/fonts/orbitron.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Rajdhani';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/rajdhani-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Rajdhani';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../assets/fonts/rajdhani-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Rajdhani';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../assets/fonts/rajdhani-700.woff2') format('woff2');
+}
+
+:root {
+  --cyan: #22e6ff;
+  --magenta: #ff3c8c;
+  --dark: #05060f;
+  --muted: #8fa3c8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(34, 230, 255, 0.09), transparent 42%),
+    radial-gradient(circle at 18% 82%, rgba(255, 60, 140, 0.07), transparent 38%),
+    #03040a;
+  color: #fff;
+  font-family: 'Rajdhani', system-ui, sans-serif;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* rejilla de fondo sutil */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(34, 230, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 230, 255, 0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(circle at 50% 50%, black 20%, transparent 78%);
+  z-index: 0;
+}
+
+/* scanlines */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.12) 3px,
+    rgba(0, 0, 0, 0) 4px
+  );
+  opacity: 0.35;
+  z-index: 20;
+}
+
+#game {
+  position: relative;
+  z-index: 1;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#game canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  border: 1px solid rgba(34, 230, 255, 0.16);
+  box-shadow:
+    0 0 0 1px rgba(255, 60, 140, 0.06),
+    0 0 55px rgba(34, 230, 255, 0.1),
+    0 0 120px rgba(255, 60, 140, 0.05);
+}
+
+/* -------------------------------------------------------------------------
+   Pantalla de carga
+   ------------------------------------------------------------------------- */
+#loading {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(34, 230, 255, 0.08), transparent 48%),
+    #05060f;
+  transition: opacity 0.55s ease, visibility 0.55s ease;
+}
+
+#loading.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader {
+  width: min(82vw, 520px);
+  text-align: center;
+}
+
+.loader-mark {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 24px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--cyan);
+  color: var(--cyan);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 17px;
+  letter-spacing: 1px;
+  box-shadow: 0 0 26px rgba(34, 230, 255, 0.25), inset 0 0 20px rgba(34, 230, 255, 0.12);
+  transform: rotate(45deg);
+}
+
+.loader-mark span {
+  display: block;
+  transform: rotate(-45deg);
+}
+
+.loader h1 {
+  margin: 0 0 26px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(28px, 5vw, 46px);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  color: #fff;
+  text-shadow: 0 0 22px rgba(34, 230, 255, 0.55);
+}
+
+.loader h1 span {
+  color: var(--magenta);
+  text-shadow: 0 0 22px rgba(255, 60, 140, 0.55);
+}
+
+.loader-bar {
+  width: 100%;
+  height: 6px;
+  border: 1px solid rgba(34, 230, 255, 0.35);
+  background: rgba(34, 230, 255, 0.05);
+  overflow: hidden;
+}
+
+.loader-bar i {
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--magenta));
+  box-shadow: 0 0 16px rgba(34, 230, 255, 0.55);
+  animation: loader-slide 1.15s ease-in-out infinite;
+}
+
+@keyframes loader-slide {
+  0% { transform: translateX(-110%); }
+  50% { transform: translateX(80%); }
+  100% { transform: translateX(260%); }
+}
+
+.loader p {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+}
+
+/* -------------------------------------------------------------------------
+   Aviso para móvil en vertical
+   ------------------------------------------------------------------------- */
+#rotate-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  z-index: 30;
+  transform: translateX(-50%);
+  padding: 9px 18px;
+  border: 1px solid rgba(34, 230, 255, 0.35);
+  background: rgba(5, 6, 15, 0.82);
+  color: var(--cyan);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (orientation: portrait) and (pointer: coarse) {
+  #rotate-hint {
+    animation: hint-in 0.4s ease 1.2s forwards, hint-out 0.6s ease 7s forwards;
+  }
+}
+
+@keyframes hint-in {
+  to { opacity: 0.9; }
+}
+
+@keyframes hint-out {
+  to { opacity: 0; visibility: hidden; }
+}
+
+/* -------------------------------------------------------------------------
+   Accesibilidad / sin JS
+   ------------------------------------------------------------------------- */
+.noscript {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: #05060f;
+  color: #fff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 22px;
+  text-align: center;
+  padding: 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader-bar i {
+    animation-duration: 2.4s;
+  }
+}
