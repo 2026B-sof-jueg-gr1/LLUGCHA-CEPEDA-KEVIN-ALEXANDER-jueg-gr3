@@ -98,9 +98,9 @@ const NC = {
   },
 
   CONTROLS_P1: [
-    ['Mover', 'A / D  ·  ← / →'],
-    ['Saltar', 'W  ·  ↑  ·  ESPACIO'],
-    ['Agacharse', 'S  ·  ↓'],
+    ['Mover', 'A / D'],
+    ['Saltar', 'W  ·  ESPACIO'],
+    ['Agacharse', 'S'],
     ['Puñetazo', 'J'],
     ['Patada', 'K'],
     ['Bloquear', 'L  ·  SHIFT'],

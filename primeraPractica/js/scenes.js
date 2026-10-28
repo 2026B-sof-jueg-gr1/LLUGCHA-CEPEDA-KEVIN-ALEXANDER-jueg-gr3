@@ -274,6 +274,8 @@ class MenuScene extends Phaser.Scene {
     });
     this.input.keyboard.on('keydown-F', () => this.scale.toggleFullscreen());
 
+    this.menuKeys = this.input.keyboard.addKeys('UP,DOWN,LEFT,RIGHT,ENTER,SPACE,ESC,H');
+
     this.cameras.main.fadeIn(450, 5, 6, 15);
   }
 
@@ -394,7 +396,7 @@ class MenuScene extends Phaser.Scene {
     this.diffHint = this.add.text(NC.W / 2, 582, '←  →  CAMBIAR', NC.bodyStyle(13, NC.CSS.muted, '600'))
       .setOrigin(0.5).setDepth(12);
 
-    this.audioHint = this.add.text(NC.W / 2, 682, 'CLICK O PULSA UNA TECLA PARA ACTIVAR EL AUDIO', NC.bodyStyle(14, NC.CSS.cyan, '600'))
+    this.audioHint = this.add.text(NC.W / 2, 630, 'CLICK O PULSA UNA TECLA PARA ACTIVAR EL AUDIO', NC.bodyStyle(14, NC.CSS.cyan, '600'))
       .setOrigin(0.5).setDepth(12).setAlpha(0.8);
     this.tweens.add({ targets: this.audioHint, alpha: 0.35, duration: 1100, yoyo: true, repeat: -1 });
 
@@ -439,9 +441,10 @@ class MenuScene extends Phaser.Scene {
     addColumn(-225, 'JUGADOR 1', NC.CSS.cyan, NC.CONTROLS_P1);
     addColumn(225, 'JUGADOR 2', NC.CSS.magenta, NC.CONTROLS_P2);
 
+    const alt = this.add.text(0, 165, 'EN 1 JUGADOR, P1 TAMBIÉN PUEDE USAR ← → ↑ ↓', NC.bodyStyle(14, NC.CSS.muted, '600')).setOrigin(0.5);
     const note = this.add.text(0, 205, 'P / ESC — PAUSA     ·     M — SILENCIO     ·     F — PANTALLA COMPLETA', NC.bodyStyle(15, NC.CSS.muted, '600')).setOrigin(0.5);
     const close = this.add.text(0, 240, 'H / ESC — VOLVER', NC.textStyle(16, NC.CSS.yellow, '700')).setOrigin(0.5);
-    this.controlsPanel.add([note, close]);
+    this.controlsPanel.add([alt, note, close]);
   }
 
   createFooter() {
@@ -560,15 +563,15 @@ class MenuScene extends Phaser.Scene {
   }
 
   update() {
-    const kb = this.input.keyboard;
-    const up = Phaser.Input.Keyboard.JustDown(kb.addKey('UP'));
-    const down = Phaser.Input.Keyboard.JustDown(kb.addKey('DOWN'));
-    const left = Phaser.Input.Keyboard.JustDown(kb.addKey('LEFT'));
-    const right = Phaser.Input.Keyboard.JustDown(kb.addKey('RIGHT'));
-    const enter = Phaser.Input.Keyboard.JustDown(kb.addKey('ENTER'));
-    const space = Phaser.Input.Keyboard.JustDown(kb.addKey('SPACE'));
-    const esc = Phaser.Input.Keyboard.JustDown(kb.addKey('ESC'));
-    const h = Phaser.Input.Keyboard.JustDown(kb.addKey('H'));
+    const kb = this.menuKeys;
+    const up = Phaser.Input.Keyboard.JustDown(kb.UP);
+    const down = Phaser.Input.Keyboard.JustDown(kb.DOWN);
+    const left = Phaser.Input.Keyboard.JustDown(kb.LEFT);
+    const right = Phaser.Input.Keyboard.JustDown(kb.RIGHT);
+    const enter = Phaser.Input.Keyboard.JustDown(kb.ENTER);
+    const space = Phaser.Input.Keyboard.JustDown(kb.SPACE);
+    const esc = Phaser.Input.Keyboard.JustDown(kb.ESC);
+    const h = Phaser.Input.Keyboard.JustDown(kb.H);
 
     if (this.controlsOpen) {
       if (esc || h) this.closeControls();
@@ -704,15 +707,17 @@ class FightScene extends Phaser.Scene {
     const hint = this.mode === '1p'
       ? 'A / D  MOVER   ·   W  SALTAR   ·   J  PUÑO   ·   K  PATADA   ·   L  BLOQUEAR   ·   U  ESPECIAL'
       : 'P1: A/D · W · J/K/L/U        P2: ←/→ · ↑ · 1/2/3/4';
-    this.hintText = this.add.text(NC.W / 2, NC.H - 28, hint, NC.bodyStyle(14, NC.CSS.muted, '600'))
-      .setOrigin(0.5).setDepth(120).setAlpha(0.75);
-    this.tweens.add({
-      targets: this.hintText,
-      alpha: 0,
-      delay: 7000,
-      duration: 900,
-      onComplete: () => this.hintText.destroy(),
-    });
+    if (!this.touchInput) {
+      this.hintText = this.add.text(NC.W / 2, NC.H - 28, hint, NC.bodyStyle(14, NC.CSS.muted, '600'))
+        .setOrigin(0.5).setDepth(120).setAlpha(0.75);
+      this.tweens.add({
+        targets: this.hintText,
+        alpha: 0,
+        delay: 7000,
+        duration: 900,
+        onComplete: () => this.hintText.destroy(),
+      });
+    }
   }
 
   /* ----------------------------- HUD ----------------------------- */
@@ -938,6 +943,7 @@ class FightScene extends Phaser.Scene {
     const KC = Phaser.Input.Keyboard.KeyCodes;
     this.keys = this.input.keyboard.addKeys({
       A: KC.A, D: KC.D, W: KC.W, S: KC.S, J: KC.J, K: KC.K, L: KC.L, U: KC.U, SHIFT: KC.SHIFT,
+      SPACE: KC.SPACE,
       LEFT: KC.LEFT, RIGHT: KC.RIGHT, UP: KC.UP, DOWN: KC.DOWN,
       ONE: KC.ONE, TWO: KC.TWO, THREE: KC.THREE, FOUR: KC.FOUR,
       P: KC.P, ESC: KC.ESC, M: KC.M, F: KC.F, R: KC.R, ENTER: KC.ENTER,
@@ -947,7 +953,10 @@ class FightScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-ESC', () => this.togglePause());
     this.input.keyboard.on('keydown-F', () => this.scale.toggleFullscreen());
     this.input.keyboard.on('keydown-M', () => {
-      if (this.matchOver) {
+      if (this.matchOver || this.paused) {
+        NCAudio.duckMusic(false);
+        this.physics.world.resume();
+        this.anims.resumeAll();
         this.scene.start('MenuScene');
         return;
       }
@@ -971,7 +980,7 @@ class FightScene extends Phaser.Scene {
     const input = {
       left: k.A.isDown || (!twoP && k.LEFT.isDown),
       right: k.D.isDown || (!twoP && k.RIGHT.isDown),
-      up: k.W.isDown || (!twoP && k.UP.isDown),
+      up: k.W.isDown || k.SPACE.isDown || (!twoP && k.UP.isDown),
       down: k.S.isDown || (!twoP && k.DOWN.isDown),
       punch: k.J.isDown,
       kick: k.K.isDown,
@@ -1031,10 +1040,10 @@ class FightScene extends Phaser.Scene {
       return c;
     };
 
-    make(54, 650, 62, 62, '◀', 'left', NC.COLORS.cyan);
-    make(130, 650, 62, 62, '▶', 'right', NC.COLORS.cyan);
-    make(92, 580, 62, 56, '▲', 'up', NC.COLORS.cyan);
-    make(92, 712, 62, 50, '▼', 'down', NC.COLORS.cyan);
+    make(54, 646, 62, 58, '◀', 'left', NC.COLORS.cyan);
+    make(130, 646, 62, 58, '▶', 'right', NC.COLORS.cyan);
+    make(92, 578, 62, 50, '▲', 'up', NC.COLORS.cyan);
+    make(92, 694, 62, 44, '▼', 'down', NC.COLORS.cyan);
 
     make(1212, 606, 72, 58, 'PUÑO', 'punch', NC.COLORS.magenta);
     make(1130, 606, 72, 58, 'PATADA', 'kick', NC.COLORS.magenta);
@@ -1044,6 +1053,8 @@ class FightScene extends Phaser.Scene {
 
   /* ----------------------------- RONDA ----------------------------- */
   startRound() {
+    this.clearProjectiles();
+    this.physics.world.timeScale = 1;
     this.roundState = 'intro';
     this.roundResolved = false;
     this.timeLeft = NC.ROUND_TIME;
@@ -1142,14 +1153,15 @@ class FightScene extends Phaser.Scene {
     if (this.matchOver) return;
     this.matchOver = true;
     this.roundState = 'matchEnd';
+    this.clearProjectiles();
     this.physics.world.pause();
-    this.anims.pauseAll();
     NCAudio.play('win', 0.65);
     this.cameras.main.zoomTo(1, 400);
     this.showMatchEnd();
   }
 
   restartMatch() {
+    this.physics.world.timeScale = 1;
     this.physics.world.resume();
     this.anims.resumeAll();
     this.scene.restart({ mode: this.mode, difficulty: this.difficultyKey });
@@ -1419,6 +1431,13 @@ class FightScene extends Phaser.Scene {
     proj.destroy();
   }
 
+  clearProjectiles() {
+    for (const proj of this.projectiles.slice()) {
+      this.destroyProjectile(proj);
+    }
+    this.projectiles.length = 0;
+  }
+
   updateProjectiles(delta) {
     for (let i = this.projectiles.length - 1; i >= 0; i--) {
       const p = this.projectiles[i];
@@ -1488,6 +1507,7 @@ class FightScene extends Phaser.Scene {
 
   togglePause() {
     if (this.matchOver || this.roundState === 'matchEnd') return;
+    if (!this.paused && this.roundState !== 'fighting') return;
     this.paused = !this.paused;
     if (this.paused) {
       this.physics.world.pause();
