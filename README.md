@@ -104,7 +104,7 @@ Abrir `http://localhost:8000`.
 
 ## Despliegue
 
-El workflow `.github/workflows/deploy.yml` se ejecuta al hacer push a `main`. Publica el contenido de `primeraPractica/` como artefacto de GitHub Pages, por lo que la URL pública sirve el juego directamente.
+El workflow `.github/workflows/deploy.yml` se ejecuta al hacer push a `main`. Publica el contenido de `primeraPractica/` en la rama `gh-pages`, que es la fuente configurada para GitHub Pages. Así, la URL pública sirve el juego directamente y se actualiza de forma automática.
 
 ## Créditos
 
