@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#05060f">
+  <meta name="description" content="NEON CLASH — juego de peleas 2D hecho con Phaser 3. Taller Práctico de despliegue en GitHub Pages.">
+  <meta property="og:title" content="NEON CLASH — Cyber Fighting">
+  <meta property="og:description" content="Juego de peleas 2D hecho con Phaser 3. Elige tu luchador y domina la arena del Sector 07.">
+  <meta property="og:type" content="website">
+  <title>NEON CLASH — Cyber Fighting | Phaser 3</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="preload" href="assets/fonts/orbitron.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/rajdhani-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="loading">
+    <div class="loader">
+      <div class="loader-mark"><span>NC</span></div>
+      <h1>NEON <span>CLASH</span></h1>
+      <div class="loader-bar"><i></i></div>
+      <p>CARGANDO SISTEMA DE COMBATE</p>
+    </div>
+  </div>
+
+  <main id="game" aria-label="Juego NEON CLASH"></main>
+
+  <div id="rotate-hint">↻ GIRA EL DISPOSITIVO PARA UNA MEJOR EXPERIENCIA</div>
+
+  <noscript>
+    <div class="noscript">NEON CLASH necesita JavaScript para funcionar.</div>
+  </noscript>
+
+  <script src="vendor/phaser.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/fighter.js"></script>
+  <script src="js/scenes.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
